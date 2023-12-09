@@ -42,7 +42,7 @@ void initialize_svg_module(ModuleInitializationLevel p_level) {
 	}
 
 	tvg::CanvasEngine tvgEngine = tvg::CanvasEngine::Sw;
-	if (tvg::Initializer::init(tvgEngine, 1) != tvg::Result::Success) {
+	if (tvg::Initializer::init(1, tvgEngine) != tvg::Result::Success) {
 		return;
 	}
 
