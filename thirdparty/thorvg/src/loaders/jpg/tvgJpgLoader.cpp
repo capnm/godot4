@@ -21,7 +21,6 @@
  */
 
 #include <memory.h>
-#include "tvgLoader.h"
 #include "tvgJpgLoader.h"
 
 /************************************************************************/
@@ -38,23 +37,37 @@ void JpgLoader::clear()
 }
 
 
+void JpgLoader::run(unsigned tid)
+{
+    if (image) {
+        free(image);
+        image = nullptr;
+    }
+    image = jpgdDecompress(decoder);
+
+    clear();
+}
+
+
 /************************************************************************/
 /* External Class Implementation                                        */
 /************************************************************************/
 
+JpgLoader::JpgLoader() : LoadModule(FileType::Jpg)
+{
+
+}
+
 
 JpgLoader::~JpgLoader()
 {
-    jpgdDelete(decoder);
-    if (freeData) free(data);
+    clear();
     free(image);
 }
 
 
 bool JpgLoader::open(const string& path)
 {
-    clear();
-
     int width, height;
     decoder = jpgdHeader(path.c_str(), &width, &height);
     if (!decoder) return false;
@@ -67,10 +80,8 @@ bool JpgLoader::open(const string& path)
 }
 
 
-bool JpgLoader::open(const char* data, uint32_t size, bool copy)
+bool JpgLoader::open(const char* data, uint32_t size, TVG_UNUSED const string& rpath, bool copy)
 {
-    clear();
-
     if (copy) {
         this->data = (char *) malloc(size);
         if (!this->data) return false;
@@ -96,7 +107,9 @@ bool JpgLoader::open(const char* data, uint32_t size, bool copy)
 
 bool JpgLoader::read()
 {
-    if (!decoder || w <= 0 || h <= 0) return false;
+    if (!LoadModule::read()) return true;
+
+    if (!decoder || w == 0 || h == 0) return false;
 
     TaskScheduler::request(this);
 
@@ -106,8 +119,8 @@ bool JpgLoader::read()
 
 bool JpgLoader::close()
 {
+    if (!LoadModule::close()) return false;
     this->done();
-    clear();
     return true;
 }
 
@@ -130,14 +143,4 @@ unique_ptr<Surface> JpgLoader::bitmap()
     surface->owner = true;
 
     return unique_ptr<Surface>(surface);
-}
-
-
-void JpgLoader::run(unsigned tid)
-{
-    if (image) {
-        free(image);
-        image = nullptr;
-    }
-    image = jpgdDecompress(decoder);
 }

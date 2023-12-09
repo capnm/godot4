@@ -36,7 +36,7 @@ private:
     unsigned long size = 0;
     bool freeData = false;
 
-    void clear();
+    void run(unsigned tid) override;
 
 public:
     PngLoader();
@@ -44,12 +44,10 @@ public:
 
     using LoadModule::open;
     bool open(const string& path) override;
-    bool open(const char* data, uint32_t size, bool copy) override;
+    bool open(const char* data, uint32_t size, const string& rpath, bool copy) override;
     bool read() override;
-    bool close() override;
 
     unique_ptr<Surface> bitmap() override;
-    void run(unsigned tid) override;
 };
 
 #endif //_TVG_PNG_LOADER_H_

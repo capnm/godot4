@@ -62,9 +62,9 @@ Animation::Animation() : pImpl(new Impl)
 }
 
 
-Result Animation::frame(uint32_t no) noexcept
+Result Animation::frame(float no) noexcept
 {
-    auto loader = pImpl->picture->pImpl->loader.get();
+    auto loader = pImpl->picture->pImpl->loader;
 
     if (!loader) return Result::InsufficientCondition;
     if (!loader->animatable()) return Result::NonSupport;
@@ -80,9 +80,9 @@ Picture* Animation::picture() const noexcept
 }
 
 
-uint32_t Animation::curFrame() const noexcept
+float Animation::curFrame() const noexcept
 {
-    auto loader = pImpl->picture->pImpl->loader.get();
+    auto loader = pImpl->picture->pImpl->loader;
 
     if (!loader) return 0;
     if (!loader->animatable()) return 0;
@@ -91,9 +91,9 @@ uint32_t Animation::curFrame() const noexcept
 }
 
 
-uint32_t Animation::totalFrame() const noexcept
+float Animation::totalFrame() const noexcept
 {
-    auto loader = pImpl->picture->pImpl->loader.get();
+    auto loader = pImpl->picture->pImpl->loader;
 
     if (!loader) return 0;
     if (!loader->animatable()) return 0;
@@ -104,7 +104,7 @@ uint32_t Animation::totalFrame() const noexcept
 
 float Animation::duration() const noexcept
 {
-    auto loader = pImpl->picture->pImpl->loader.get();
+    auto loader = pImpl->picture->pImpl->loader;
 
     if (!loader) return 0;
     if (!loader->animatable()) return 0;

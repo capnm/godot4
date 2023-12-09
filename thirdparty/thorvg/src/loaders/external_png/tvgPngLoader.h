@@ -24,6 +24,7 @@
 #define _TVG_PNG_LOADER_H_
 
 #include <png.h>
+#include "tvgLoader.h"
 
 class PngLoader : public LoadModule
 {
@@ -33,13 +34,14 @@ public:
 
     using LoadModule::open;
     bool open(const string& path) override;
-    bool open(const char* data, uint32_t size, bool copy) override;
+    bool open(const char* data, uint32_t size, const string& rpath, bool copy) override;
     bool read() override;
-    bool close() override;
 
     unique_ptr<Surface> bitmap() override;
 
 private:
+    void clear();
+
     png_imagep image = nullptr;
     uint32_t* content = nullptr;
 };

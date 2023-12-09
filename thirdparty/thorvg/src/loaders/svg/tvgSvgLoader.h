@@ -35,7 +35,7 @@ public:
     uint32_t size = 0;
 
     SvgLoaderData loaderData;
-    unique_ptr<Scene> root;
+    Scene* root = nullptr;
 
     bool copy = false;
 
@@ -44,12 +44,12 @@ public:
 
     using LoadModule::open;
     bool open(const string& path) override;
-    bool open(const char* data, uint32_t size, bool copy) override;
+    bool open(const char* data, uint32_t size, const string& rpath, bool copy) override;
     bool resize(Paint* paint, float w, float h) override;
     bool read() override;
     bool close() override;
 
-    unique_ptr<Paint> paint() override;
+    Paint* paint() override;
 
 private:
     SvgViewFlag viewFlag = SvgViewFlag::None;
