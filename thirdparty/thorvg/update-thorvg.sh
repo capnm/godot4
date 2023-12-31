@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-VERSION=0.11.2
+VERSION=0.12.99
 
 cd thirdparty/thorvg/ || true
 rm -rf AUTHORS LICENSE inc/ src/ *.zip *.tar.gz tmp/
@@ -8,17 +8,17 @@ rm -rf AUTHORS LICENSE inc/ src/ *.zip *.tar.gz tmp/
 mkdir tmp/ && pushd tmp/
 
 # Release
-curl -L -O https://github.com/thorvg/thorvg/archive/v$VERSION.tar.gz
+#curl -L -O https://github.com/thorvg/thorvg/archive/v$VERSION.tar.gz
 # Current Github main branch tip
 #curl -L -O https://github.com/thorvg/thorvg/archive/refs/heads/main.tar.gz
 
-tar --strip-components=1 -xvf *.tar.gz
-rm *.tar.gz
+#tar --strip-components=1 -xvf *.tar.gz
+#rm *.tar.gz
 
 # Install from local git checkout "thorvg-git" in the same directory
 # as godot git checkout.
-#d="../../../../thorvg-git"
-#cp -r ${d}/AUTHORS ${d}/inc ${d}/LICENSE ${d}/src .
+d="../../../../thorvg-git"
+cp -r ${d}/AUTHORS ${d}/inc ${d}/LICENSE ${d}/src .
 
 find . -type f -name 'meson.build' -delete
 
@@ -52,13 +52,17 @@ cp -rv src/renderer ../src/
 
 # Only sw_engine is enabled.
 rm -rfv ../src/renderer/gl_engine
+rm -rfv ../src/renderer/wg_engine
+
 
 # Enabled embedded loaders: raw, JPEG, PNG.
 mkdir ../src/loaders
 cp -rv src/loaders/svg src/loaders/raw  ../src/loaders/
-cp -rv src/loaders/svg src/loaders/jpg  ../src/loaders/
-cp -rv src/loaders/svg src/loaders/png  ../src/loaders/
-cp -rv src/loaders/svg src/loaders/external_png  ../src/loaders/
+cp -rv src/loaders/jpg  ../src/loaders/
+cp -rv src/loaders/png src/loaders/external_png  ../src/loaders/
+
+# ttf(ont) loader is currently unused / beta.
+#cp -rv src/loaders/ttf  ../src/loaders/
 
 popd
 rm -rf tmp
