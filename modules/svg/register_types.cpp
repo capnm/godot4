@@ -47,9 +47,7 @@ void initialize_svg_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
-	tvg::CanvasEngine tvgEngine = tvg::CanvasEngine::Sw;
-
-	if (tvg::Initializer::init(tvgEngine, TVG_THREADS) != tvg::Result::Success) {
+	if (tvg::Initializer::init(TVG_THREADS) != tvg::Result::Success) {
 		return;
 	}
 

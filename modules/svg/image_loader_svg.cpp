@@ -82,7 +82,7 @@ Error ImageLoaderSVG::create_image_from_utf8_buffer(Ref<Image> p_image, const ui
 
 	std::unique_ptr<tvg::Picture> picture = tvg::Picture::gen();
 
-	tvg::Result result = picture->load((const char *)p_buffer, p_buffer_size, "svg", true);
+	tvg::Result result = picture->load((const char *)p_buffer, p_buffer_size, "svg", "", true);
 	if (result != tvg::Result::Success) {
 		return ERR_INVALID_DATA;
 	}
