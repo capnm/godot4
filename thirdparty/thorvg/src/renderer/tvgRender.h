@@ -23,9 +23,9 @@
 #ifndef _TVG_RENDER_H_
 #define _TVG_RENDER_H_
 
-#include <mutex>
 #include "tvgCommon.h"
 #include "tvgArray.h"
+#include "tvgLock.h"
 
 namespace tvg
 {
@@ -37,7 +37,7 @@ enum RenderUpdateFlag : uint8_t {None = 0, Path = 1, Color = 2, Gradient = 4, St
 
 struct Surface;
 
-enum ColorSpace
+enum ColorSpace : uint8_t
 {
     ABGR8888 = 0,      //The channels are joined in the order: alpha, blue, green, red. Colors are alpha-premultiplied.
     ARGB8888,          //The channels are joined in the order: alpha, red, green, blue. Colors are alpha-premultiplied.
@@ -54,7 +54,7 @@ struct Surface
         uint32_t* buf32;            //for explicit 32bits channels
         uint8_t*  buf8;             //for explicit 8bits grayscale
     };
-    mutex mtx;                      //used for thread safety
+    Key key;                        //a reserved lock for the thread safety
     uint32_t stride = 0;
     uint32_t w = 0, h = 0;
     ColorSpace cs = ColorSpace::Unsupported;
@@ -75,8 +75,6 @@ struct Surface
         channelSize = rhs->channelSize;
         premultiplied = rhs->premultiplied;
     }
-
-
 };
 
 struct Compositor
@@ -155,9 +153,9 @@ struct RenderStroke
     float* dashPattern = nullptr;
     uint32_t dashCnt = 0;
     float dashOffset = 0.0f;
+    float miterlimit = 4.0f;
     StrokeCap cap = StrokeCap::Square;
     StrokeJoin join = StrokeJoin::Bevel;
-    float miterlimit = 4.0f;
     bool strokeFirst = false;
 
     struct {
@@ -181,8 +179,8 @@ struct RenderShape
     } path;
 
     Fill *fill = nullptr;
-    RenderStroke *stroke = nullptr;
     uint8_t color[4] = {0, 0, 0, 0};    //r, g, b, a
+    RenderStroke *stroke = nullptr;
     FillRule rule = FillRule::Winding;
 
     ~RenderShape()
@@ -213,7 +211,7 @@ struct RenderShape
         return true;
     }
 
-    bool strokeColor(uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) const
+    bool strokeFill(uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a) const
     {
         if (!stroke) return false;
 

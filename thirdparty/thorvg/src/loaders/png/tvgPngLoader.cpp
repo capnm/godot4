@@ -106,7 +106,7 @@ finalize:
 }
 
 
-bool PngLoader::open(const char* data, uint32_t size, bool copy)
+bool PngLoader::open(const char* data, uint32_t size, TVG_UNUSED const string& rpath, bool copy)
 {
     unsigned int width, height;
     if (lodepng_inspect(&width, &height, &state, (unsigned char*)(data), size) > 0) return false;

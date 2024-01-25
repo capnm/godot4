@@ -65,7 +65,7 @@ bool PngLoader::open(const string& path)
 }
 
 
-bool PngLoader::open(const char* data, uint32_t size, bool copy)
+bool PngLoader::open(const char* data, uint32_t size, TVG_UNUSED const string& rpath, bool copy)
 {
     image->opaque = NULL;
 

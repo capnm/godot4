@@ -46,7 +46,7 @@ struct LoadModule
     }
 
     virtual bool open(const string& path) { return false; }
-    virtual bool open(const char* data, uint32_t size, bool copy) { return false; }
+    virtual bool open(const char* data, uint32_t size, const string& rpath, bool copy) { return false; }
     virtual bool resize(Paint* paint, float w, float h) { return false; }
     virtual void sync() {};  //finish immediately if any async update jobs.
 

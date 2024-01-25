@@ -42,7 +42,7 @@ public:
     ~PngLoader();
 
     bool open(const string& path) override;
-    bool open(const char* data, uint32_t size, bool copy) override;
+    bool open(const char* data, uint32_t size, const string& rpath, bool copy) override;
     bool read() override;
 
     Surface* bitmap() override;

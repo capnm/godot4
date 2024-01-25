@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2024 the ThorVG project. All rights reserved.
+ * Copyright (c) 2024 the ThorVG project. All rights reserved.
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,33 +20,51 @@
  * SOFTWARE.
  */
 
-#ifndef _TVG_JPG_LOADER_H_
-#define _TVG_JPG_LOADER_H_
+#ifndef _TVG_LOCK_H_
+#define _TVG_LOCK_H_
 
-#include "tvgLoader.h"
-#include "tvgTaskScheduler.h"
-#include "tvgJpgd.h"
+#ifdef THORVG_THREAD_SUPPORT
 
-class JpgLoader : public ImageLoader, public Task
-{
-private:
-    jpeg_decoder* decoder = nullptr;
-    char* data = nullptr;
-    bool freeData = false;
+#include <mutex>
 
-    void clear();
-    void run(unsigned tid) override;
+namespace tvg {
 
-public:
-    JpgLoader();
-    ~JpgLoader();
+    struct Key
+    {
+        std::mutex mtx;
+    };
 
-    bool open(const string& path) override;
-    bool open(const char* data, uint32_t size, const string& rpath, bool copy) override;
-    bool read() override;
-    bool close() override;
+    struct ScopedLock
+    {
+        Key* key = nullptr;
 
-    Surface* bitmap() override;
-};
+        ScopedLock(Key& key)
+        {
+            key.mtx.lock();
+            this->key = &key;
+        }
 
-#endif //_TVG_JPG_LOADER_H_
+        ~ScopedLock()
+        {
+            key->mtx.unlock();
+        }
+    };
+
+}
+
+#else //THORVG_THREAD_SUPPORT
+
+namespace tvg {
+
+    struct Key {};
+
+    struct ScopedLock
+    {
+        ScopedLock(Key& key) {}
+    };
+
+}
+
+#endif //THORVG_THREAD_SUPPORT
+
+#endif //_TVG_LOCK_H_

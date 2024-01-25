@@ -24,6 +24,7 @@
 
 #include "tvgInlist.h"
 #include "tvgLoader.h"
+#include "tvgLock.h"
 
 #ifdef THORVG_SVG_LOADER_SUPPORT
     #include "tvgSvgLoader.h"
@@ -65,7 +66,7 @@ uint64_t HASH_KEY(const char* data, uint64_t size)
 /* Internal Class Implementation                                        */
 /************************************************************************/
 
-static mutex mtx;
+static Key key;
 static Inlist<LoadModule> _activeLoaders;
 
 
@@ -211,7 +212,7 @@ static LoadModule* _findByType(const string& mimeType)
 
 static LoadModule* _findFromCache(const string& path)
 {
-    unique_lock<mutex> lock{mtx};
+    ScopedLock lock(key);
 
     auto loader = _activeLoaders.head;
 
@@ -231,7 +232,7 @@ static LoadModule* _findFromCache(const char* data, uint32_t size, const string&
     auto type = _convert(mimeType);
     if (type == FileType::Unknown) return nullptr;
 
-    unique_lock<mutex> lock{mtx};
+    ScopedLock lock(key);
     auto loader = _activeLoaders.head;
 
     auto key = HASH_KEY(data, size);
@@ -279,7 +280,7 @@ bool LoaderMgr::retrieve(LoadModule* loader)
     if (!loader) return false;
     if (loader->close()) {
         {
-            unique_lock<mutex> lock{mtx};
+            ScopedLock lock(key);
             _activeLoaders.remove(loader);
         }
         delete(loader);
@@ -298,7 +299,7 @@ LoadModule* LoaderMgr::loader(const string& path, bool* invalid)
         if (loader->open(path)) {
             loader->hashpath = strdup(path.c_str());
             {
-                unique_lock<mutex> lock{mtx};
+                ScopedLock lock(key);
                 _activeLoaders.back(loader);
             }
             return loader;
@@ -331,16 +332,16 @@ LoadModule* LoaderMgr::loader(const char* key)
 }
 
 
-LoadModule* LoaderMgr::loader(const char* data, uint32_t size, const string& mimeType, bool copy)
+LoadModule* LoaderMgr::loader(const char* data, uint32_t size, const string& mimeType, const string& rpath, bool copy)
 {
     if (auto loader = _findFromCache(data, size, mimeType)) return loader;
 
     //Try with the given MimeType
     if (!mimeType.empty()) {
         if (auto loader = _findByType(mimeType)) {
-            if (loader->open(data, size, copy)) {
+            if (loader->open(data, size, rpath, copy)) {
                 loader->hashkey = HASH_KEY(data, size);                
-                unique_lock<mutex> lock{mtx};
+                ScopedLock lock(key);
                 _activeLoaders.back(loader);
                 return loader;
             } else {
@@ -353,10 +354,10 @@ LoadModule* LoaderMgr::loader(const char* data, uint32_t size, const string& mim
         for (int i = 0; i < static_cast<int>(FileType::Unknown); i++) {
             auto loader = _find(static_cast<FileType>(i));
             if (loader) {
-                if (loader->open(data, size, copy)) {
+                if (loader->open(data, size, rpath, copy)) {
                     loader->hashkey = HASH_KEY(data, size);
                     {
-                        unique_lock<mutex> lock{mtx};
+                        ScopedLock lock(key);
                         _activeLoaders.back(loader);
                     }
                     return loader;
@@ -369,17 +370,17 @@ LoadModule* LoaderMgr::loader(const char* data, uint32_t size, const string& mim
 }
 
 
-LoadModule* LoaderMgr::loader(const uint32_t *data, uint32_t w, uint32_t h, bool copy)
+LoadModule* LoaderMgr::loader(const uint32_t *data, uint32_t w, uint32_t h, bool premultiplied, bool copy)
 {
     //TODO: should we check premultiplied??
     if (auto loader = _findFromCache((const char*)(data), w * h, "raw")) return loader;
 
     //function is dedicated for raw images only
     auto loader = new RawLoader;
-    if (loader->open(data, w, h, copy)) {
+    if (loader->open(data, w, h, premultiplied, copy)) {
         loader->hashkey = HASH_KEY((const char*)data, w * h);
         {
-            unique_lock<mutex> lock{mtx};
+            ScopedLock lock(key);
             _activeLoaders.back(loader);
         }
         return loader;

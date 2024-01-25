@@ -160,19 +160,19 @@ struct Picture::Impl
         return load(loader);
     }
 
-    Result load(const char* data, uint32_t size, const string& mimeType, bool copy)
+    Result load(const char* data, uint32_t size, const string& mimeType, const string& rpath, bool copy)
     {
         if (paint || surface) return Result::InsufficientCondition;
-        auto loader = static_cast<ImageLoader*>(LoaderMgr::loader(data, size, mimeType, copy));
+        auto loader = static_cast<ImageLoader*>(LoaderMgr::loader(data, size, mimeType, rpath, copy));
         if (!loader) return Result::NonSupport;
         return load(loader);
     }
 
-    Result load(uint32_t* data, uint32_t w, uint32_t h, bool copy)
+    Result load(uint32_t* data, uint32_t w, uint32_t h, bool premultiplied, bool copy)
     {
         if (paint || surface) return Result::InsufficientCondition;
 
-        auto loader = static_cast<ImageLoader*>(LoaderMgr::loader(data, w, h, copy));
+        auto loader = static_cast<ImageLoader*>(LoaderMgr::loader(data, w, h, premultiplied, copy));
         if (!loader) return Result::FailedAllocation;
 
         return load(loader);

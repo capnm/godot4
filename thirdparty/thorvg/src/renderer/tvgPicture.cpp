@@ -176,25 +176,19 @@ Result Picture::load(const std::string& path) noexcept
 }
 
 
-Result Picture::load(const char* data, uint32_t size, const string& mimeType, bool copy) noexcept
+Result Picture::load(const char* data, uint32_t size, const string& mimeType, const string& rpath, bool copy) noexcept
 {
     if (!data || size <= 0) return Result::InvalidArguments;
 
-    return pImpl->load(data, size, mimeType, copy);
+    return pImpl->load(data, size, mimeType, rpath, copy);
 }
 
 
-TVG_DEPRECATED Result Picture::load(const char* data, uint32_t size, bool copy) noexcept
-{
-    return load(data, size, "", copy);
-}
-
-
-Result Picture::load(uint32_t* data, uint32_t w, uint32_t h, bool copy) noexcept
+Result Picture::load(uint32_t* data, uint32_t w, uint32_t h, bool premultiplied, bool copy) noexcept
 {
     if (!data || w <= 0 || h <= 0) return Result::InvalidArguments;
 
-    return pImpl->load(data, w, h, copy);
+    return pImpl->load(data, w, h, premultiplied, copy);
 }
 
 
