@@ -113,6 +113,8 @@ Error ImageLoaderSVG::create_image_from_utf8_buffer(Ref<Image> p_image, const ui
 		ERR_FAIL_V_MSG(FAILED, "ImageLoaderSVG: Couldn't set target on ThorVG canvas.");
 	}
 
+	sw_canvas->clear();
+
 	res = sw_canvas->push(std::move(picture));
 	if (res != tvg::Result::Success) {
 		memfree(buffer);

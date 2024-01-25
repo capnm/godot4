@@ -260,6 +260,9 @@ FT_Error tvg_svg_in_ot_render(FT_GlyphSlot p_slot, FT_Pointer *p_state) {
 	if (res != tvg::Result::Success) {
 		ERR_FAIL_V_MSG(FT_Err_Invalid_Outline, "Failed to create SVG canvas.");
 	}
+
+	sw_canvas->clear();
+
 	res = sw_canvas->push(std::move(picture));
 	if (res != tvg::Result::Success) {
 		ERR_FAIL_V_MSG(FT_Err_Invalid_Outline, "Failed to set SVG canvas source.");
